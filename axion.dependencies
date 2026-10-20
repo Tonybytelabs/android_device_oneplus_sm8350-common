@@ -1,11 +1,11 @@
 [
   {
-    "repository": "Tonybytelabs/Levion_kernel_OP9",
+    "repository": "varakumar02/Levion_kernel_OP9",
     "target_path": "kernel/oneplus/sm8350",
     "branch": "claude"
   },
   {
-    "repository": "Tonybytelabs/android_hardware_oplus",
+    "repository": "varakumar02/android_hardware_oplus",
     "target_path": "hardware/oplus",
     "branch": "claude"
   },
@@ -20,12 +20,12 @@
     "branch": "lineage-23.2"
   },
   {
-    "repository": "Tonybytelabs/proprietary_vendor_oneplus_sm8350-common",
+    "repository": "varakumar02/proprietary_vendor_oneplus_sm8350-common",
     "target_path": "vendor/oneplus/sm8350-common",
     "branch": "claude"
   },
   {
-    "repository": "Tonybytelabs/proprietary_vendor_oneplus_lemonade",
+    "repository": "varakumar02/proprietary_vendor_oneplus_lemonade",
     "target_path": "vendor/oneplus/lemonade",
     "branch": "claude"
   }

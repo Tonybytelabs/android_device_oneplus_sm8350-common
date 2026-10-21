@@ -298,6 +298,15 @@ PRODUCT_PACKAGES += \
     OPlusSystemUIResCommon \
     WifiResTarget
 
+# Pico/core GApps don't ship the Google app, so drop the Assistant opt-in
+# step from the Pixel setup wizard's scripts
+ifeq ($(WITH_GMS),true)
+ifneq ($(filter pico core,$(TARGET_GAPPS_VARIANT)),)
+PRODUCT_PACKAGES += \
+    PixelSetupWizardResCommon
+endif
+endif
+
 # Partitions
 PRODUCT_PACKAGES += \
     vendor_bt_firmware_mountpoint \

@@ -1,0 +1,71 @@
+From: AxionOS <noreply@axionos>
+Date: Wed, 21 Oct 2026 12:36:33 +0530
+Subject: [PATCH] WindowManagerService: never report screen capture to apps
+
+Apps are no longer told that the screen was captured or recorded:
+
+- notifyScreenshotListeners() returns an empty list without reporting
+  the screenshot to activities registered with
+  Activity.registerScreenCaptureCallback(). SystemUI's "<app> detected
+  this screenshot" notice uses the same list, so it is not shown either.
+- registerScreenRecordingCallback() returns false (not being recorded)
+  without registering the callback.
+- onProcessActivityVisibilityChanged() no longer feeds the screen
+  recording callback controller.
+
+Based on someone5678's "base: Allow to hide screen capture status from
+apps" (Change-Id Ie2a8e49614dcd8fce2311a644d615ab60670c094), without the
+setting: the behaviour is always on.
+---
+ .../android/server/wm/WindowManagerService.java   | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/services/core/java/com/android/server/wm/WindowManagerService.java b/services/core/java/com/android/server/wm/WindowManagerService.java
+index 08f3c1f..8666d66 100644
+--- a/services/core/java/com/android/server/wm/WindowManagerService.java
++++ b/services/core/java/com/android/server/wm/WindowManagerService.java
+@@ -10756,6 +10756,14 @@ public class WindowManagerService extends IWindowManager.Stub
+     }
+ 
+ 
++    /**
++     * Apps are never told that the screen was captured or is being recorded:
++     * screenshot callbacks are not delivered, and screen recording callbacks
++     * cannot be registered, so isScreenRecording-style checks always see "not
++     * recorded".
++     */
++    private static final boolean HIDE_SCREEN_CAPTURE_STATUS = true;
++
+     /**
+      * Must be called when a screenshot is taken via hardware chord.
+      *
+@@ -10769,6 +10777,9 @@ public class WindowManagerService extends IWindowManager.Stub
+                 "notifyScreenshotListeners()")) {
+             throw new SecurityException("Requires STATUS_BAR_SERVICE permission");
+         }
++        if (HIDE_SCREEN_CAPTURE_STATUS) {
++            return new ArrayList<>();
++        }
+         synchronized (mGlobalLock) {
+             final DisplayContent displayContent = mRoot.getDisplayContent(displayId);
+             if (displayContent == null) {
+@@ -10872,6 +10883,9 @@ public class WindowManagerService extends IWindowManager.Stub
+     @Override
+     public boolean registerScreenRecordingCallback(IScreenRecordingCallback callback) {
+         registerScreenRecordingCallback_enforcePermission();
++        if (HIDE_SCREEN_CAPTURE_STATUS) {
++            return false;
++        }
+         return mScreenRecordingCallbackController.register(callback);
+     }
+ 
+@@ -10883,6 +10897,9 @@ public class WindowManagerService extends IWindowManager.Stub
+     }
+ 
+     void onProcessActivityVisibilityChanged(int uid, boolean visible) {
++        if (HIDE_SCREEN_CAPTURE_STATUS) {
++            return;
++        }
+         mScreenRecordingCallbackController.onProcessActivityVisibilityChanged(uid, visible);
+     }
+ 
